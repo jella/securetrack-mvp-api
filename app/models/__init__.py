@@ -1,0 +1,1 @@
+from .ativos import Ativo
