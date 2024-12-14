@@ -9,7 +9,6 @@ Este é o repositório do **backend** da aplicação SecureTrack. Ele é uma API
 - Gerenciamento de ativos (criação, listagem, atualização e exclusão).
 - Gerenciamento de controles de segurança.
 - Relatórios de conformidade entre ativos e controles.
-- API documentada para fácil consumo.
 
 ---
 
@@ -22,7 +21,7 @@ Siga os passos abaixo para configurar o ambiente local e executar o projeto.
 Faça o clone deste repositório em sua máquina local:
 
 ```bash
-git clone https://github.com/mvp-api/backend.git
+git clone https://github.com/jella/securetrack-mvp-api.git
 cd backend
 ```
 
@@ -94,7 +93,7 @@ O servidor estará disponível em: [http://127.0.0.1:5000/](http://127.0.0.1:500
 ## 📁 Estrutura do Projeto
 
 ```plaintext
-backend/
+securetrack-mvp-api/
 ├── app/
 │   ├── __init__.py         # Configuração do Flask e SQLAlchemy
 │   ├── models/             # Modelos de banco de dados
@@ -111,7 +110,7 @@ backend/
 
 ## 🔗 Integração com o Front-End
 
-Certifique-se de que o front-end consuma os endpoints da API corretamente. Consulte o [repositório do front-end](https://github.com/mvp-api/frontend) para mais detalhes.
+Certifique-se de que o front-end consuma os endpoints da API corretamente. Consulte o [repositório do front-end](https://github.com/jella/securetrack-mvp-frontend.git) para mais detalhes.
 
 ### Endpoints Principais
 
@@ -125,12 +124,6 @@ Certifique-se de que o front-end consuma os endpoints da API corretamente. Consu
 
 - **Relatório de Conformidade:**
   - **Ver Relatório (GET):** `/conformidade/status`
-
----
-
-## 🛡️ Licença
-
-Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
 
