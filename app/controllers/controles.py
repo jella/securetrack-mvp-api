@@ -29,3 +29,30 @@ def list_controles():
         'data_hora_alteracao': controle.data_hora_alteracao
     } for controle in controles]
     return jsonify(controles_data), 200
+
+
+@controles_bp.route('/<int:id>', methods=['DELETE'])
+def delete_controle(id):
+    """
+    Remove um controle pelo ID.
+    ---
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        description: ID do controle a ser removido
+    responses:
+      200:
+        description: Controle removido com sucesso
+      404:
+        description: Controle não encontrado
+    """
+    controle = Controle.query.get(id)  # Busca o controle pelo ID
+    if not controle:
+        return jsonify({'error': 'Controle não encontrado'}), 404
+
+    db.session.delete(controle)  # Remove o controle
+    db.session.commit()  # Salva as alterações no banco de dados
+
+    return jsonify({'message': 'Controle removido com sucesso!'}), 200
