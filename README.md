@@ -107,6 +107,12 @@ securetrack-mvp-api/
 ```
 
 ---
+## 📁 Documentação da API
+  
+  [![Documentação da API](https://via.placeholder.com/400x200.png?text=Documenta%C3%A7%C3%A3o+da+API)](http://127.0.0.1:3001/openapi/)
+
+
+## 🔗
 
 ## 🔗 Integração com o Front-End
 
