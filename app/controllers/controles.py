@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
-from app import db
+from flask import  request, jsonify
+from flask_openapi3 import APIBlueprint, Tag
 from app.models.controle import Controle
+from app import db
 
-controles_bp = Blueprint('controles', __name__)
+controles_bp = APIBlueprint('controles', __name__,url_prefix='/controles')
+
+controle_tag = Tag(name="Controles", description="Gerenciamento de controles da organização.")
 
 @controles_bp.route('/', methods=['POST'])
 def create_controle():

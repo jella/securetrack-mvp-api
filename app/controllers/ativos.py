@@ -1,11 +1,15 @@
 from flask import Blueprint, request, jsonify
+from flask_openapi3 import OpenAPI, Info, Tag , APIBlueprint 
 from app import db
 from app.models.ativos import Ativo
 
-ativos_bp = Blueprint('ativos', __name__)
+ativos_bp = APIBlueprint ('ativos', __name__,url_prefix='/ativos')
+# Tags para a documentação
+ativo_tag = Tag(name="Ativos", description="Gerenciamento de ativos da organização.")
 
 @ativos_bp.route('/', methods=['POST'])
 def create_ativo():
+    
     data = request.get_json()
     novo_ativo = Ativo(
         nome=data['nome'],
