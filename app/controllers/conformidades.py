@@ -35,8 +35,8 @@ def get_conformidade_status():
                 example: "Backup Diário"
               status:
                 type: string
-                description: Status de conformidade (Conforme ou Não Conforme)
-                example: "Conforme"
+                description: Status de conformidade (Implemetado ou Não Pendente)
+                example: "Implementado"
     """
     status_filtro = request.args.get('status')  # Obtém o filtro de status da query string
 
@@ -131,8 +131,8 @@ def cadastrar_conformidade():
               type: integer
             status:
               type: string
-              enum: ["Conforme", "Não Conforme"]
-              example: "Conforme"
+              enum: ["Implementado", "Pendente"]
+              example: "Implementado"
     responses:
       201:
         description: Conformidade cadastrada com sucesso
@@ -140,10 +140,11 @@ def cadastrar_conformidade():
     dados = request.json
 
     # Valida os dados recebidos
+
     ativo_id = dados.get("ativo_id")
     controle_id = dados.get("controle_id")
-    status = dados.get("status", "Não Conforme")  # Padrão: Não Conforme
-
+    status = dados.get("status", "Pendente")  # Padrão: Pendente
+    
     if not ativo_id or not controle_id:
         return jsonify({"erro": "Campos 'ativo_id' e 'controle_id' são obrigatórios"}), 400
 
