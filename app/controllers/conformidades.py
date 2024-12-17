@@ -16,7 +16,7 @@ def get_conformidade_status():
         in: query
         type: string
         required: false
-        description: Filtra os resultados pelo status de conformidade (Conforme ou Não Conforme)
+        description: Filtra os resultados pelo status de conformidade (Implementado ou Não Pendente)
     responses:
       200:
         description: Lista de conformidades com ativos e controles associados.
@@ -78,7 +78,7 @@ def relatorio_conformidade():
         in: query
         type: string
         required: false
-        description: Filtro de status (Conforme, Não Conforme)
+        description: Filtro de status (Implementado, Pendente)
     responses:
       200:
         description: Relatório de conformidade
@@ -113,44 +113,60 @@ def relatorio_conformidade():
 
     return jsonify(resultado), 200
 
-conformidade_bp.route('/conformidade', methods=['POST'])
+@conformidade_bp.route('/conformidade', methods=['POST'])
 def cadastrar_conformidade():
-    """
-    Cadastra uma nova relação de conformidade entre um ativo e um controle.
-    ---
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            ativo_id:
-              type: integer
-            controle_id:
-              type: integer
-            status:
-              type: string
-              enum: ["Implementado", "Pendente"]
-              example: "Implementado"
-    responses:
-      201:
-        description: Conformidade cadastrada com sucesso
-    """
     dados = request.json
-
-    # Valida os dados recebidos
 
     ativo_id = dados.get("ativo_id")
     controle_id = dados.get("controle_id")
-    status = dados.get("status", "Pendente")  # Padrão: Pendente
-    
+    status = dados.get("status", "Pendente")
+
     if not ativo_id or not controle_id:
         return jsonify({"erro": "Campos 'ativo_id' e 'controle_id' são obrigatórios"}), 400
 
-    # Cria e salva a conformidade
-    nova_conformidade = Conformidade(ativo_id=ativo_id, controle_id=controle_id, status=status)
-    db.session.add(nova_conformidade)
+    # Valida existência do ativo e controle
+    ativo = Ativo.query.get(ativo_id)
+    if not ativo:
+        return jsonify({"erro": "Ativo não encontrado"}), 404
+
+    controle = Controle.query.get(controle_id)
+    if not controle:
+        return jsonify({"erro": "Controle não encontrado"}), 404
+
+    # Verifica duplicidade
+    conformidade_existente = Conformidade.query.filter_by(ativo_id=ativo_id, controle_id=controle_id).first()
+    if conformidade_existente:
+        return jsonify({"erro": "Essa conformidade já existe"}), 400
+
+
+@conformidade_bp.route('/conformidade/<int:ativo_id>/<int:controle_id>', methods=['DELETE'])
+def remover_conformidade(ativo_id, controle_id):
+    """
+    Remove uma relação de conformidade entre ativo e controle.
+    """
+    conformidade = Conformidade.query.filter_by(ativo_id=ativo_id, controle_id=controle_id).first()
+
+    if not conformidade:
+        return jsonify({"erro": "Conformidade não encontrada"}), 404
+
+    db.session.delete(conformidade)
     db.session.commit()
 
-    return jsonify({"mensagem": "Conformidade cadastrada com sucesso"}), 201
+    return jsonify({"mensagem": "Conformidade removida com sucesso"}), 200
+
+@conformidade_bp.route('/conformidade/<int:ativo_id>/<int:controle_id>', methods=['PUT'])
+def atualizar_conformidade(ativo_id, controle_id):
+    """
+    Atualiza uma relação de conformidade existente entre ativo e controle.
+    """
+    dados = request.json
+    conformidade = Conformidade.query.filter_by(ativo_id=ativo_id, controle_id=controle_id).first()
+
+    if not conformidade:
+        return jsonify({"erro": "Conformidade não encontrada"}), 404
+
+    # Atualiza o status se fornecido
+    conformidade.status = dados.get("status", conformidade.status)
+    db.session.commit()
+
+    return jsonify({"mensagem": "Conformidade atualizada com sucesso"}), 200
