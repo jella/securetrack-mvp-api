@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response,redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
@@ -23,7 +23,7 @@ def create_app():
     # Rota padrão para testar se a API está funcionando
     @app.get("/")
     def index():
-            return {"message": "SecureTrack API está funcionando!"}
+               return redirect('/openapi/swagger/')
     
 
     db.init_app(app)
@@ -38,9 +38,11 @@ def create_app():
         from app.controllers.conformidades import conformidade_bp
 
         # Registro dos Blueprints
-        app.register_blueprint(ativos_bp, url_prefix="/ativos")
-        app.register_blueprint(controles_bp, url_prefix="/controles")
-        app.register_blueprint(conformidade_bp, url_prefix="/conformidade")
+        # app.register_blueprint(ativos_bp, url_prefix="/ativos")
+        # app.register_blueprint(controles_bp, url_prefix="/controles")
+        # app.register_blueprint(conformidade_bp, url_prefix="/conformidade")
+
+        
 
    
 
