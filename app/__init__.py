@@ -20,10 +20,6 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbtrack.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Rota padrão para testar se a API está funcionando
-    @app.get("/")
-    def index():
-               return redirect('/openapi/swagger/')
     
 
     db.init_app(app)
