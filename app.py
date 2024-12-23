@@ -20,4 +20,4 @@ def index():
     return redirect("/openapi/swagger")
 
 if __name__ == "__main__":
-    app.run('127.0.0.1', '3001',debug=True)
+    app.run(debug=True)
