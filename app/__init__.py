@@ -7,13 +7,13 @@ from flask_openapi3 import OpenAPI, Info, Tag, APIBlueprint
 # Inicializar extensões
 db = SQLAlchemy()
 ma = Marshmallow()
+info = Info(title="SecureTrack API", description="API para gerenciamento de ativos e controles.", version="1.0.0")
 
 def create_app():
 
-    
-
-    app = Flask(__name__)
+    app = OpenAPI(__name__, info=info)
     CORS(app)
+
 
 
     
@@ -29,9 +29,6 @@ def create_app():
     db.init_app(app)
     ma.init_app(app)
    
-    info = Info(title="API de Gestão de implementação de controles de segurança da Informação", version="1.0.0")
-    openapi = (app, info)
-
 
     
     # Criar as tabelas
@@ -44,11 +41,14 @@ def create_app():
         app.register_blueprint(ativos_bp, url_prefix="/ativos")
         app.register_blueprint(controles_bp, url_prefix="/controles")
         app.register_blueprint(conformidade_bp, url_prefix="/conformidade")
+
+   
+
         db.create_all()  
 
 
 
-
+# register nested api
     
 
     
