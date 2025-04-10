@@ -1,7 +1,6 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class RespostaErroSchema(BaseModel):
-    error: str
-
-
-
+    mensagem: str
+    erro: Optional[str] = None

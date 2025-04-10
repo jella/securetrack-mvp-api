@@ -1,53 +1,70 @@
-from flask import  request, jsonify
-from flask_openapi3 import OpenAPI, Info, Tag, APIBlueprint
-from app.models.controle import Controle
+from flask_openapi3 import APIBlueprint, Tag
+from flask import jsonify, request
+from flask_cors import cross_origin
+from app.models.controles import Controle
+from app.schemas.controle import ControleSchema, NovoControleSchema, ListaControlesSchema
+from app.schemas.error import RespostaErroSchema
 from app import db
-from app.models.controle import Controle
-from app.schemas.controles import *
-from app.schemas.error import *
+
+controle_tag = Tag(name="Controle", description="Operações com controles")
+
+controles_bp = APIBlueprint(
+    'controles_bp',  # Nome único
+    __name__,
+    url_prefix='/controles',
+    abp_tags=[controle_tag]
+)
 
 
-controles_bp = APIBlueprint('controles', __name__,url_prefix='/controles')
+@controles_bp.route('/', methods=['OPTIONS'])
+@cross_origin(origins="http://localhost:8000")
+def handle_options():
+    return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
-controle_tag = Tag(name="Controles", description="Gerenciamento de controles da organização.")
-
-@controles_bp.post('/', tags=[controle_tag], responses={"201": ControleSchema, "400": RespostaErroSchema})
-def create_controle(form: NovoControleSchema):
-    data = request.get_json()
-    novo_controle = Controle(
-        descricao=data['descricao'],
-        categoria=data['categoria'],
-        codigo=data['codigo'],
-        anotacoes=data.get('anotacoes', None)
-    )
-    db.session.add(novo_controle)
-    db.session.commit()
-    return jsonify({'message': 'Controle criado com sucesso!'}), 201
-
-@controles_bp.get('/', tags=[controle_tag],  responses={"200": NovoControleSchema, "404": RespostaErroSchema})
-def list_controles(query: ControleSchema):
+# Endpoint para listar todos os controles
+@controles_bp.get(
+    '/',
+    summary="Lista todos os controles",
+    responses={200: ListaControlesSchema}  # Agora usando ListaControlesSchema
+)
+@cross_origin(origins="http://localhost:8000")
+def listar_controles():
     controles = Controle.query.all()
-    controles_data = [{
-        'id': controle.id,
-        'descricao': controle.descricao,
-        'categoria': controle.categoria,
-        'codigo': controle.codigo,
-        'anotacoes': controle.anotacoes,
-        'data_hora_alteracao': controle.data_hora_alteracao
-    } for controle in controles]
-    return jsonify(controles_data), 200
+    data = [ControleSchema.from_orm(c).dict() for c in controles]
+    return jsonify(data), 200
 
+# Endpoint para criar um novo controle
+@controles_bp.post(
+    '/',
+    summary="Cria um novo controle",
+    responses={201: ControleSchema, 400: RespostaErroSchema}
+)
+@cross_origin(origins="http://localhost:8000")
+def criar_controle(body: NovoControleSchema):
+    try:
+        # Criação de um novo controle
+        novo_controle = Controle(
+            descricao=body.descricao,
+            categoria=body.categoria,
+            codigo=body.codigo,
+            anotacoes=body.anotacoes
+        )
+        db.session.add(novo_controle)
+        db.session.commit()
 
-@controles_bp.delete('/<int:id>', tags=[controle_tag],responses={"200": {"description": "Controle removido com sucesso"}, "404": RespostaErroSchema})
-def delete_controle(id):
-    """
-    Remove um controle pelo ID.
-    """
-    controle = Controle.query.get(id)  # Busca o controle pelo ID
+        # Retorno do controle criado
+        return jsonify(ControleSchema.from_orm(novo_controle).dict()), 201
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+
+# Endpoint para excluir um controle
+@controles_bp.route('/<int:id>', methods=["DELETE"], strict_slashes=False)
+@cross_origin(origins="http://localhost:8000")
+def delete_controle(id: int):
+    controle = Controle.query.get(id)
     if not controle:
-        return jsonify({'error': 'Controle não encontrado'}), 404
-
-    db.session.delete(controle)  # Remove o controle
-    db.session.commit()  # Salva as alterações no banco de dados
-
-    return jsonify({'message': 'Controle removido com sucesso!'}), 200
+        return jsonify({"erro": "Controle não encontrado"}), 404
+    db.session.delete(controle)
+    db.session.commit()
+    return jsonify({"mensagem": "Controle removido com sucesso!"}), 200

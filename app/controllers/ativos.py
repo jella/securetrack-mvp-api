@@ -1,120 +1,87 @@
-from flask import Blueprint, request, jsonify
-from flask_openapi3 import OpenAPI, Info, Tag, APIBlueprint
-from app import db
+from flask_openapi3 import APIBlueprint, Tag
+from flask import jsonify
+from flask_cors import cross_origin
 from app.models.ativos import Ativo
-from app.schemas.ativo import *
-from app.schemas.error import *
+from app.schemas.ativo import AtivoSchema, NovoAtivoSchema, ListaAtivosSchema, AtivoPathParams
+from app.schemas.error import RespostaErroSchema
+from app import db
 
+ativo_tag = Tag(name="Ativo", description="Operações com ativos")
 
+# Inicializando o Blueprint
+ativos_bp = APIBlueprint(
+    'ativos_bp',
+    __name__,
+    url_prefix='/ativos',
+    abp_tags=[ativo_tag]
+)
 
-# Tags para a documentação
-ativo_tag = Tag(name="Ativos", description="Gerenciamento de ativos da organização.")
+# Endpoint para CORS preflight OPTIONS
+@ativos_bp.route('/', methods=['OPTIONS'])
+@cross_origin(origins="http://localhost:8000")
+def handle_options():
+    return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
-ativos_bp = APIBlueprint('ativos', __name__, url_prefix='/ativos')
-
-@ativos_bp.post('/', tags=[ativo_tag], responses={"200": NovoAtivoSchema, "409": RespostaErroSchema, "400": RespostaErroSchema})
-def create_ativo(form: NovoAtivoSchema):
-    """
-      Cria um novo ativo na organização.
-    """
-    data = request.get_json()
-    novo_ativo = Ativo(
-        nome=data['nome'],
-        tipo=data['tipo'],
-        responsavel=data['responsavel'],
-        observacoes=data.get('observacoes', None),
-        status=data['status']
-    )
-    db.session.add(novo_ativo)
-    db.session.commit()
-    return jsonify({'message': 'Ativo criado com sucesso!','error':201}), 201
-
-@ativos_bp.get('/', tags=[ativo_tag], responses={"200": NovoAtivoSchema, "404": RespostaErroSchema})
-def list_ativos(query: AtivoSchema):
-    """
-    Lista todos os ativos cadastrados.
-    """
+# Endpoint para listar todos os ativos
+@ativos_bp.get(
+    '/',
+    summary="Lista todos os ativos",
+    responses={200: ListaAtivosSchema}
+)
+@cross_origin(origins="http://localhost:8000")
+def listar_ativos():
     ativos = Ativo.query.all()
-    ativos_data = [{
-        'id': ativo.id,
-        'nome': ativo.nome,
-        'tipo': ativo.tipo,
-        'responsavel': ativo.responsavel,
-        'observacoes': ativo.observacoes,
-        'status': ativo.status,
-        'data_hora_alteracao': ativo.data_hora_alteracao
-    } for ativo in ativos]
-    return jsonify(ativos_data), 200
+    data = [AtivoSchema.model_validate(a, from_attributes=True) for a in ativos]
+    return jsonify([d.dict() for d in data]), 200
 
-@ativos_bp.get('/<int:id>', tags=[ativo_tag])
-def get_ativo(id):
+@ativos_bp.get(
+    '/<int:id>',  # Defina a URL com o parâmetro id capturado da URL
+    summary="Consulta um ativo específico",
+    description="Recupera as informações de um ativo específico pelo seu ID."
+)
+@cross_origin(origins="http://localhost:8000")
+def consultar_ativo(path: AtivoPathParams):
     """
-    Retorna os detalhes de um ativo pelo ID.
-    ---
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        description: ID do ativo a ser retornado.
-    responses:
-      200:
-        description: Detalhes do ativo.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  description: ID do ativo.
-                nome:
-                  type: string
-                  description: Nome do ativo.
-                tipo:
-                  type: string
-                  description: Tipo do ativo.
-                responsavel:
-                  type: string
-                  description: Nome do responsável pelo ativo.
-                observacoes:
-                  type: string
-                  description: Observações adicionais sobre o ativo.
-                status:
-                  type: string
-                  description: Status do ativo.
-                data_hora_alteracao:
-                  type: string
-                  format: date-time
-                  description: Data e hora da última alteração no ativo.
-      404:
-        description: Ativo não encontrado.
+    Consulta um ativo específico pelo ID.
     """
-    ativo = Ativo.query.get(id)
-    if not ativo:
-        return jsonify({'error': 'Ativo não encontrado'}), 404
+    try:
+        # Buscar o ativo pelo ID
+        ativo_id = path.id
+        ativo = Ativo.query.get(ativo_id)
+        
+        # Se não encontrar o ativo
+        if not ativo:
+            return jsonify({"mensagem": "Ativo não encontrado"}), 404
 
-    ativo_data = {
-        'id': ativo.id,
-        'nome': ativo.nome,
-        'tipo': ativo.tipo,
-        'responsavel': ativo.responsavel,
-        'observacoes': ativo.observacoes,
-        'status': ativo.status,
-        'data_hora_alteracao': ativo.data_hora_alteracao
-    }
-    return jsonify(ativo_data), 200
+        # Retornar o ativo encontrado
+        return jsonify(AtivoSchema.model_validate(ativo, from_attributes=True).dict()), 200
 
-@ativos_bp.delete('/<int:id>', tags=[ativo_tag])
-def delete_ativo(query: AtivoSchema):
-    """
-    Remove um ativo pelo ID.
-    """
-    ativo = Ativo.query.get(id)
-    if not ativo:
-        return jsonify({'error': 'Ativo não encontrado'}), 404
+    except Exception as e:
+        return jsonify({"mensagem": "Erro ao consultar ativo", "erro": str(e)}), 400
 
-    db.session.delete(ativo)
-    db.session.commit()
+        
+# Endpoint para criar um novo ativo
+@ativos_bp.post(
+    '/',
+    summary="Cria um novo ativo",
+    responses={201: AtivoSchema, 400: RespostaErroSchema}
+)
+@cross_origin(origins="http://localhost:8000")
+def criar_ativo(body: NovoAtivoSchema):
+    try:
+        novo = Ativo(
+            nome=body.nome,
+            tipo=body.tipo,
+            responsavel=body.responsavel,
+            status=body.status,
+            observacoes=body.observacoes
+        )
+        db.session.add(novo)
+        db.session.commit()
 
-    return jsonify({'message': 'Ativo removido com sucesso'}), 200
+        return jsonify(AtivoSchema.model_validate(novo, from_attributes=True).dict()), 201
+
+    except Exception as e:
+        return jsonify({"mensagem": "Erro ao criar ativo", "erro": str(e)}), 400
+
+

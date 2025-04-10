@@ -1,23 +1,17 @@
-from flask import Flask, redirect
-from flask_openapi3 import OpenAPI,  Info, Tag
-from pydantic import BaseModel
-from app.controllers.ativos import ativo_tag, ativos_bp
 from app import create_app
-from app.controllers.ativos import  ativos_bp
-from app.controllers.controles import  controles_bp
-from app.controllers.conformidades import  conformidade_bp
+from flask import redirect
 
 app = create_app()
 
+@app.route('/')
+def redirect_to_docs():
+    return redirect('/openapi/swagger')
 
 
-app.register_api(ativos_bp)
-app.register_api(controles_bp)
-app.register_api(conformidade_bp)
+@app.route('/<int:id>')
+def index(id: int):
+    dados = {"nome": str(id)}
+    return str(id)
 
-@app.route("/")
-def index():
-    return redirect("/openapi/swagger")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
