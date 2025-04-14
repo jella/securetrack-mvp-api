@@ -1,20 +1,18 @@
-Dockerfile# Usar uma imagem base do Python
-FROM python:3.9-slim
+# Usa imagem Python leve
+FROM python:3.11-slim
 
-# Setar diretório de trabalho dentro do contêiner
+# Define diretório de trabalho no container
 WORKDIR /app
 
-# Copiar o requirements.txt para o diretório de trabalho
-COPY requirements.txt /app/
-
-# Instalar as dependências
+# Copia e instala dependências
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar o código da aplicação para o contêiner
-COPY . /app/
+# Copia o restante do código da aplicação
+COPY . .
 
-# Expor a porta onde a aplicação Flask vai rodar
+# Expõe a porta padrão do Flask
 EXPOSE 5000
 
-# Definir o comando para rodar a aplicação
+# Comando para rodar o Flask no container
 CMD ["python", "app.py"]
