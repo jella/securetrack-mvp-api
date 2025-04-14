@@ -33,14 +33,9 @@ Siga as etapas abaixo para construir e executar a aplicação com Docker.
 Para Construir a Imagem do Docker:
 
 ```bash
-Copiar
-docker-compose build
-Iniciar os Contêineres:
-```
-
-```bash
-Copiar
-docker-compose up
+docker run -p 5000:5000 \
+  -v $(pwd)/db:/app \
+  securetrack-api
 ```
 Acesse a aplicação Flask no seu navegador em http://localhost:5000. Além disso, o Swagger também estará disponível.
 
