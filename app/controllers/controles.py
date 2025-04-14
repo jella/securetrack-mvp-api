@@ -17,7 +17,7 @@ controles_bp = APIBlueprint(
 
 
 @controles_bp.route('/', methods=['OPTIONS'])
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000",supports_credentials=True)
 def handle_options():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
@@ -39,7 +39,7 @@ def listar_controles():
     summary="Cria um novo controle",
     responses={201: ControleSchema, 400: RespostaErroSchema}
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def criar_controle(body: NovoControleSchema):
     try:
         # Criação de um novo controle
@@ -60,7 +60,7 @@ def criar_controle(body: NovoControleSchema):
 
 # Endpoint para excluir um controle
 @controles_bp.route('/<int:id>', methods=["DELETE"], strict_slashes=False)
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def delete_controle(id: int):
     controle = Controle.query.get(id)
     if not controle:
