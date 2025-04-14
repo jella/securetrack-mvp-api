@@ -27,70 +27,31 @@ cd backend
 
 ---
 
-### 2. Configurar o Ambiente Virtual
+## 🛠️5. Construir e Executar a Aplicação
+Siga as etapas abaixo para construir e executar a aplicação com Docker.
 
-Crie e ative um ambiente virtual para gerenciar as dependências do projeto:
-
-- **Linux/Mac:**
-  ```bash
-  python3 -m venv venv
-  source venv/bin/activate
-  ```
-
-- **Windows:**
-  ```bash
-  python -m venv venv
-  venv\Scripts\activate
-  ```
-
----
-
-### 3. Instalar as Dependências
-
-Com o ambiente virtual ativado, instale as dependências necessárias:
+Para Construir a Imagem do Docker:
 
 ```bash
-pip install -r requirements.txt
+Copiar
+docker-compose build
+Iniciar os Contêineres:
 ```
-
----
-
-### 4. Configurar o Banco de Dados
-
-Certifique-se de que o diretório `instance/` exista para armazenar o arquivo do banco de dados SQLite:
 
 ```bash
-mkdir instance
+Copiar
+docker-compose up
 ```
+Acesse a aplicação Flask no seu navegador em http://localhost:5000. Além disso, o Swagger também estará disponível.
 
-Inicialize o banco de dados executando o seguinte comando no shell do Flask:
+## 🛠️5. Acessando o Banco de Dados PostgreSQL
+
+Para Acessar o contêiner do PostgreSQL:
 
 ```bash
-flask shell
+Copiar
+docker exec -it flask-db psql -U user -d database_name
 ```
-
-E dentro do shell, execute:
-
-```python
-from app import db
-db.create_all()
-```
-
----
-
-### 5. Iniciar o Servidor
-
-Execute o servidor Flask localmente:
-
-```bash
-python app.py
-```
-
-O servidor estará disponível em: [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
-
----
-
-## 📁 Estrutura do Projeto
 
 ```plaintext
 securetrack-mvp-api/
@@ -103,13 +64,17 @@ securetrack-mvp-api/
 ├── app.py                  # Ponto de entrada principal
 ├── requirements.txt        # Dependências do projeto
 ├── instance/               # Diretório para o banco SQLite
-└── README.md               # Documentação do projeto
+└── README.md               # Documentação do ]]
+└── Dockerfile               # Documentação do ]]
+└── Dockerfile               # Documentação do ]]
+
+projeto
 ```
 
 ---
 ## 📁 Documentação da API
   
-  [![Documentação da API](https://via.placeholder.com/400x200.png?text=Documenta%C3%A7%C3%A3o+da+API)](http://127.0.0.1:3001/openapi/)
+  [![Documentação da API](https://via.placeholder.com/400x200.png?text=Documenta%C3%A7%C3%A3o+da+API)](http://1localhost/3001/openapi/)
 
 
 ## 🔗
