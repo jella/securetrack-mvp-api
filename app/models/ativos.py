@@ -1,3 +1,5 @@
+from app import db
+
 class Ativo(db.Model):
     __tablename__ = 'ativos'
 
