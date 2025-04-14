@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel, Field
 from typing import List
 from datetime import datetime
 
@@ -47,3 +47,18 @@ class RespostaErroSchema(BaseModel):
     Esquema para respostas de erro.
     """
     mensagem: str = "O controle especificado não foi encontrado."
+
+# Modelo de controle já existente com ID
+class ControleSchema(NovoControleSchema):
+    id: int
+    data_hora_alteracao: datetime = datetime(2023, 12, 1, 10, 0, 0)
+
+    class Config:
+        from_attributes = True  # Ajustado para Pydantic v2
+
+# ⚡ Wrapper para lista de ControleSchema com RootModel
+class ListaControlesSchema(RootModel[list[ControleSchema]]):
+    pass
+
+class ControlePathParams(BaseModel):
+    id: int = Field(..., description="ID do usuário")

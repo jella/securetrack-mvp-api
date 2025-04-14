@@ -29,10 +29,12 @@ def create_app():
         from app.controllers.ativos import ativos_bp
         from app.controllers.controles import controles_bp
         from app.controllers.conformidades import conformidade_bp
+        from app.controllers.responsaveis import responsaveis_bp
 
         app.register_api(ativos_bp)
         app.register_api(controles_bp)
         app.register_api(conformidade_bp)
+        app.register_api(responsaveis_bp)
 
         db.create_all()
 

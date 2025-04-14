@@ -17,7 +17,7 @@ conformidade_bp = APIBlueprint(
 
 
 @conformidade_bp.route('/', methods=['OPTIONS'])
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def handle_options():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
@@ -27,7 +27,7 @@ def handle_options():
     summary="Lista todas as conformidades",
     responses={200: ListaConformidadesSchema}  # Usando ListaConformidadesSchema
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def listar_conformidades():
     conformidades = Conformidade.query.all()
     data = [ConformidadeSchema.from_orm(c).dict() for c in conformidades]
@@ -39,7 +39,7 @@ def listar_conformidades():
     summary="Cria uma nova conformidade",
     responses={201: ConformidadeSchema, 400: RespostaErroSchema}
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def criar_conformidade(body: NovoConformidadeSchema):
     try:
         nova_conformidade = Conformidade(
@@ -53,3 +53,21 @@ def criar_conformidade(body: NovoConformidadeSchema):
         return jsonify(ConformidadeSchema.from_orm(nova_conformidade).dict()), 201
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
+
+
+
+@conformidade_bp.get(
+    '/status/',
+    summary="Lista conformidades filtradas por status",
+    responses={200: ListaConformidadesSchema}
+)
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
+def listar_conformidades_por_status():
+    from flask import request
+
+    status = request.args.get('status')
+
+    conformidades = Conformidade.query.filter_by(status=status).all()
+    data = [ConformidadeSchema.from_orm(c).dict() for c in conformidades]
+
+    return jsonify(data), 200
