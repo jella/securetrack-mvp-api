@@ -18,7 +18,7 @@ ativos_bp = APIBlueprint(
 
 # Endpoint para CORS preflight OPTIONS
 @ativos_bp.route('/', methods=['OPTIONS'])
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def handle_options():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
@@ -28,7 +28,7 @@ def handle_options():
     summary="Lista todos os ativos",
     responses={200: ListaAtivosSchema}
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def listar_ativos():
     ativos = Ativo.query.all()
     data = [AtivoSchema.model_validate(a, from_attributes=True) for a in ativos]
@@ -39,7 +39,7 @@ def listar_ativos():
     summary="Consulta um ativo específico",
     description="Recupera as informações de um ativo específico pelo seu ID."
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def consultar_ativo(path: AtivoPathParams):
     """
     Consulta um ativo específico pelo ID.
@@ -66,7 +66,7 @@ def consultar_ativo(path: AtivoPathParams):
     summary="Cria um novo ativo",
     responses={201: AtivoSchema, 400: RespostaErroSchema}
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def criar_ativo(body: NovoAtivoSchema):
     try:
         novo = Ativo(
@@ -90,7 +90,7 @@ def criar_ativo(body: NovoAtivoSchema):
     summary="Atualiza um ativo existente",
     responses={200: AtivoSchema, 400: RespostaErroSchema, 404: RespostaErroSchema}
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def atualizar_ativo(path: AtivoPathParams, body: NovoAtivoSchema):
     """
     Atualiza as informações de um ativo existente pelo ID.
