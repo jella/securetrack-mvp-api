@@ -122,7 +122,7 @@ def atualizar_ativo(path: AtivoPathParams, body: NovoAtivoSchema):
     summary="Consulta informações de IP do ativo",
     description="Faz uma chamada externa ao IPinfo para buscar informações do IP do ativo."
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def consultar_ipinfo_ativo(path: AtivoPathParams):
     """
     Consulta informações de IP de um ativo usando IPinfo.
@@ -157,3 +157,33 @@ def consultar_ipinfo_ativo(path: AtivoPathParams):
 
     except Exception as e:
         return jsonify({"mensagem": "Erro na consulta do IP", "erro": str(e)}), 400
+
+
+
+@ativos_bp.delete(
+    '/<int:id>',
+    summary="Remove um ativo pelo ID",
+    responses={204: None, 404: RespostaErroSchema, 400: RespostaErroSchema}
+)
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
+def deletar_ativo(path: AtivoPathParams):
+    """
+    Remove um ativo do banco de dados com base no ID fornecido.
+    """
+    try:
+        ativo_id = path.id
+        ativo = Ativo.query.get(ativo_id)
+
+        print("Path recebido:", path)
+        print("ID recebido:", getattr(path, 'id', 'Sem ID'))
+
+        if not ativo:
+            return jsonify({"mensagem": "Ativo não encontrado"}), 404
+        db.session.commit()
+        db.session.delete(ativo)
+        db.session.commit()
+
+        return '', 204
+
+    except Exception as e:
+        return jsonify({"mensagem": "Erro ao deletar ativo", "erro": str(e)}), 400
