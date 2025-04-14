@@ -85,3 +85,33 @@ def criar_ativo(body: NovoAtivoSchema):
         return jsonify({"mensagem": "Erro ao criar ativo", "erro": str(e)}), 400
 
 
+@ativos_bp.put(
+    '/<int:id>',
+    summary="Atualiza um ativo existente",
+    responses={200: AtivoSchema, 400: RespostaErroSchema, 404: RespostaErroSchema}
+)
+@cross_origin(origins="http://localhost:8000")
+def atualizar_ativo(path: AtivoPathParams, body: NovoAtivoSchema):
+    """
+    Atualiza as informações de um ativo existente pelo ID.
+    """
+    try:
+        ativo_id = path.id
+        ativo = Ativo.query.get(ativo_id)
+
+        if not ativo:
+            return jsonify({"mensagem": "Ativo não encontrado"}), 404
+
+        # Atualizando os campos
+        ativo.nome = body.nome
+        ativo.tipo = body.tipo
+        ativo.responsavel = body.responsavel
+        ativo.status = body.status
+        ativo.observacoes = body.observacoes
+
+        db.session.commit()
+
+        return jsonify(AtivoSchema.model_validate(ativo, from_attributes=True).dict()), 200
+
+    except Exception as e:
+        return jsonify({"mensagem": "Erro ao atualizar ativo", "erro": str(e)}), 400
