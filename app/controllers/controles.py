@@ -27,7 +27,7 @@ def handle_options():
     summary="Lista todos os controles",
     responses={200: ListaControlesSchema}  # Agora usando ListaControlesSchema
 )
-@cross_origin(origins="http://localhost:8000")
+@cross_origin(origins="http://localhost:8000",supports_credentials=True)
 def listar_controles():
     controles = Controle.query.all()
     data = [ControleSchema.from_orm(c).dict() for c in controles]

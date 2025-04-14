@@ -36,7 +36,7 @@ def listar_ativos():
     return jsonify([d.dict() for d in data]), 200
 
 @ativos_bp.get(
-    '/<int:id>/',  # Defina a URL com o parâmetro id capturado da URL
+    '/<int:id>',  # Defina a URL com o parâmetro id capturado da URL
     summary="Consulta um ativo específico",
     description="Recupera as informações de um ativo específico pelo seu ID."
 )
@@ -87,7 +87,7 @@ def criar_ativo(body: NovoAtivoSchema):
 
 
 @ativos_bp.put(
-    '/<int:id>/',
+    '/<int:id>',
     summary="Atualiza um ativo existente",
     responses={200: AtivoSchema, 400: RespostaErroSchema, 404: RespostaErroSchema}
 )
