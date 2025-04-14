@@ -6,7 +6,7 @@ from app.schemas.controle import ControleSchema, NovoControleSchema, ListaContro
 from app.schemas.error import RespostaErroSchema
 from app import db
 
-controle_tag = Tag(name="Controle", description="Operações com controles")
+controle_tag = Tag(name="Controle", descr1iption="Operações com controles")
 
 controles_bp = APIBlueprint(
     'controles_bp',  # Nome único
