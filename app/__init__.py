@@ -16,7 +16,7 @@ info = Info(
 
 def create_app():
     app = OpenAPI(__name__, info=info)
-    CORS(app, resources={r"/*": {"origins": "http://localhost:8000"}})
+    CORS(app, supports_credentials=True, origins=["http://localhost:8000"])
     
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbtrack.db'

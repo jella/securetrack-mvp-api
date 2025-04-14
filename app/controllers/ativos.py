@@ -1,5 +1,5 @@
 from flask_openapi3 import APIBlueprint, Tag
-from flask import jsonify
+from flask import request, jsonify
 from flask_cors import cross_origin
 from app.models.ativos import Ativo
 from app.schemas.ativo import AtivoSchema, NovoAtivoSchema, ListaAtivosSchema, AtivoPathParams
@@ -36,7 +36,7 @@ def listar_ativos():
     return jsonify([d.dict() for d in data]), 200
 
 @ativos_bp.get(
-    '/<int:id>',  # Defina a URL com o parâmetro id capturado da URL
+    '/<int:id>/',  # Defina a URL com o parâmetro id capturado da URL
     summary="Consulta um ativo específico",
     description="Recupera as informações de um ativo específico pelo seu ID."
 )
@@ -87,7 +87,7 @@ def criar_ativo(body: NovoAtivoSchema):
 
 
 @ativos_bp.put(
-    '/<int:id>',
+    '/<int:id>/',
     summary="Atualiza um ativo existente",
     responses={200: AtivoSchema, 400: RespostaErroSchema, 404: RespostaErroSchema}
 )
@@ -158,10 +158,36 @@ def consultar_ipinfo_ativo(path: AtivoPathParams):
     except Exception as e:
         return jsonify({"mensagem": "Erro na consulta do IP", "erro": str(e)}), 400
 
+@ativos_bp.get('/ipinfo/manual')
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
+def consultar_ipinfo_manual():
+    try:
+        ip = request.args.get('ip')
+        if not ip:
+            return jsonify({"mensagem": "IP não informado"}), 400
 
+        print(f"🔍 Consultando IP: {ip}")
+        response = requests.get(f"https://ipinfo.io/{ip}/json")
+
+        print("📦 Resposta IPinfo:", response.text)
+
+        if response.status_code != 200:
+            return jsonify({"mensagem": "Erro ao consultar IPinfo"}), response.status_code
+
+        return jsonify({
+            "ip": ip,
+            "dados_ipinfo": response.json()
+        }), 200
+
+    except Exception as e:
+        print("💥 Erro interno:", str(e))
+        return jsonify({"mensagem": "Erro na consulta do IP", "erro": str(e)}), 500
+    
+
+    
 
 @ativos_bp.delete(
-    '/<int:id>',
+    '/<int:id>/',
     summary="Remove um ativo pelo ID",
     responses={204: None, 404: RespostaErroSchema, 400: RespostaErroSchema}
 )
@@ -179,7 +205,7 @@ def deletar_ativo(path: AtivoPathParams):
 
         if not ativo:
             return jsonify({"mensagem": "Ativo não encontrado"}), 404
-        db.session.commit()
+     
         db.session.delete(ativo)
         db.session.commit()
 
@@ -187,3 +213,5 @@ def deletar_ativo(path: AtivoPathParams):
 
     except Exception as e:
         return jsonify({"mensagem": "Erro ao deletar ativo", "erro": str(e)}), 400
+
+
