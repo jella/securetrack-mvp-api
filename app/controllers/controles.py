@@ -2,7 +2,7 @@ from flask_openapi3 import APIBlueprint, Tag
 from flask import jsonify, request
 from flask_cors import cross_origin
 from app.models.controles import Controle
-from app.schemas.controle import ControleSchema, NovoControleSchema, ListaControlesSchema
+from app.schemas.controles import ControleSchema, NovoControleSchema, ListaControlesSchema
 from app.schemas.error import RespostaErroSchema
 from app import db
 
