@@ -8,6 +8,7 @@ class NovoAtivoSchema(BaseModel):
     responsavel: str
     status: str
     observacoes: Optional[str] = None
+    ip: Optional[str] = None 
 
 # Definindo o esquema para o Ativo
 class AtivoSchema(BaseModel):
@@ -18,7 +19,8 @@ class AtivoSchema(BaseModel):
     status: str
     observacoes: Optional[str] = None
     data_hora_alteracao: datetime
-
+    ip: Optional[str] = None 
+    
     model_config = {
         "from_attributes": True
     }

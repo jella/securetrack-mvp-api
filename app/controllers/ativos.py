@@ -5,6 +5,7 @@ from app.models.ativos import Ativo
 from app.schemas.ativo import AtivoSchema, NovoAtivoSchema, ListaAtivosSchema, AtivoPathParams
 from app.schemas.error import RespostaErroSchema
 from app import db
+import requests
 
 ativo_tag = Tag(name="Ativo", description="Operações com ativos")
 
@@ -115,3 +116,44 @@ def atualizar_ativo(path: AtivoPathParams, body: NovoAtivoSchema):
 
     except Exception as e:
         return jsonify({"mensagem": "Erro ao atualizar ativo", "erro": str(e)}), 400
+
+@ativos_bp.get(
+    '/<int:id>/ipinfo',
+    summary="Consulta informações de IP do ativo",
+    description="Faz uma chamada externa ao IPinfo para buscar informações do IP do ativo."
+)
+@cross_origin(origins="http://localhost:8000")
+def consultar_ipinfo_ativo(path: AtivoPathParams):
+    """
+    Consulta informações de IP de um ativo usando IPinfo.
+    """
+    try:
+        ativo = Ativo.query.get(path.id)
+
+        if not ativo:
+            return jsonify({"mensagem": "Ativo não encontrado"}), 404
+
+        # Vamos supor que o IP está armazenado no campo 'observacoes'
+        # Ex: observacoes="IP: 8.8.8.8"
+        import re
+        match = re.search(r'(\d{1,3}(?:\.\d{1,3}){3})', ativo.observacoes or "")
+        if not match:
+            return jsonify({"mensagem": "IP não encontrado nas observações do ativo."}), 400
+        
+        ip = match.group(1)
+
+        # Fazendo a requisição à API do IPinfo
+        response = requests.get(f"https://ipinfo.io/{ip}/json")
+
+        if response.status_code != 200:
+            return jsonify({"mensagem": "Erro ao consultar IPinfo", "status": response.status_code}), 500
+
+        ipinfo_data = response.json()
+
+        return jsonify({
+            "ip": ip,
+            "dados_ipinfo": ipinfo_data
+        }), 200
+
+    except Exception as e:
+        return jsonify({"mensagem": "Erro na consulta do IP", "erro": str(e)}), 400
