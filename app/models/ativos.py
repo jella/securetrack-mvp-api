@@ -1,5 +1,3 @@
-from app import db
-
 class Ativo(db.Model):
     __tablename__ = 'ativos'
 
@@ -9,14 +7,13 @@ class Ativo(db.Model):
     responsavel = db.Column(db.String(100), nullable=False)
     observacoes = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), nullable=False)
+    ip = db.Column(db.String(45), nullable=True)  # ✅ novo campo IP (IPv4 ou IPv6)
     data_hora_alteracao = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-
 
     def __repr__(self):
         return f'<Ativo {self.nome}>'
 
     def to_dict(self):
-        """Método para converter o modelo SQLAlchemy para um dicionário"""
         return {
             'id': self.id,
             'nome': self.nome,
@@ -24,9 +21,10 @@ class Ativo(db.Model):
             'responsavel': self.responsavel,
             'observacoes': self.observacoes,
             'status': self.status,
-            'data_hora_alteracao': self.data_hora_alteracao.isoformat()  # Converter datetime para string
+            'ip': self.ip,
+            'data_hora_alteracao': self.data_hora_alteracao.isoformat()
         }
-    
+
     def model_validate(self):
-        """Método para criar a validação Pydantic a partir do modelo SQLAlchemy"""
-        return AtivoSchema(**self.to_dict())  # A conversão para o esquema AtivoSchema
+        return AtivoSchema(**self.to_dict())
+        
