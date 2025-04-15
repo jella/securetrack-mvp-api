@@ -27,52 +27,29 @@ cd backend
 
 ---
 
-## 🛠️5. Construir e Executar a Aplicação
+## 🛠️5. Construir e Executar a Aplicação com docker
+
+
+## 👉 Para buildar:
+```bash
+docker build -t securetrack-api .
+```
+
+## 👉 Para rodar:
+```bash
+docker run -p 5000:5000 securetrack-api
+```
+
+Depois, acesse a aplicação em:
+http://localhost:5000
+E a documentação Swagger:
+http://localhost:5000/openapi/swagger
 Siga as etapas abaixo para construir e executar a aplicação com Docker.
 
-Para Construir a Imagem do Docker:
-
-```bash
-docker run -p 5000:5000 \
-  -v $(pwd)/db:/app \
-  securetrack-api
-```
-Acesse a aplicação Flask no seu navegador em http://localhost:5000. Além disso, o Swagger também estará disponível.
-
-## 🛠️5. Acessando o Banco de Dados PostgreSQL
-
-Para Acessar o contêiner do PostgreSQL:
-
-```bash
-Copiar
-docker exec -it flask-db psql -U user -d database_name
-```
-
-```plaintext
-securetrack-mvp-api/
-├── app/
-│   ├── __init__.py         # Configuração do Flask e SQLAlchemy
-│   ├── models/             # Modelos de banco de dados
-│   ├── services/           # Lógica de negócios
-│   ├── controllers/        # Rotas e endpoints
-├── config.py               # Configurações do projeto
-├── app.py                  # Ponto de entrada principal
-├── requirements.txt        # Dependências do projeto
-├── instance/               # Diretório para o banco SQLite
-└── README.md               # Documentação do ]]
-└── Dockerfile               # Documentação do ]]
-└── Dockerfile               # Documentação do ]]
-
-projeto
-```
-
----
 ## 📁 Documentação da API
   
-  [![Documentação da API](https://via.placeholder.com/400x200.png?text=Documenta%C3%A7%C3%A3o+da+API)](http://1localhost/3001/openapi/)
+  [![Documentação da API](https://via.placeholder.com/400x200.png?text=Documenta%C3%A7%C3%A3o+da+API)](http://localhost/5000/openapi/)
 
-
-## 🔗
 
 ## 🔗 Integração com o Front-End
 
