@@ -70,8 +70,8 @@ def criar_conformidade(body: NovoConformidadeSchema):
 @cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def listar_conformidades_por_status(query: StatusQueryParams):
  
-    if status and status.lower() != "todos":
-        conformidades = Conformidade.query.filter_by(status=status).all()
+    if query.status and query.status.lower() != "todos":
+        conformidades = Conformidade.query.filter_by(status=query.status).all()
     else:
         conformidades = Conformidade.query.all()
 
