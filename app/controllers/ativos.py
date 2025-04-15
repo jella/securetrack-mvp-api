@@ -23,17 +23,7 @@ ativos_bp = APIBlueprint(
 def handle_options():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
-# Endpoint para listar todos os ativos
-@ativos_bp.get(
-    '/',
-    summary="Lista todos os ativos",
-    responses={200: ListaAtivosSchema}
-)
-@cross_origin(origins="http://localhost:8000", supports_credentials=True)
-def listar_ativos():
-    ativos = Ativo.query.all()
-    data = [AtivoSchema.model_validate(a, from_attributes=True) for a in ativos]
-    return jsonify([d.dict() for d in data]), 200
+c
 
 @ativos_bp.get(
     '/<int:id>',  # Defina a URL com o parâmetro id capturado da URL

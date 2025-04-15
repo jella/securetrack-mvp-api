@@ -2,7 +2,7 @@ from flask_openapi3 import APIBlueprint, Tag
 from flask import jsonify, request
 from flask_cors import cross_origin
 from app.models.conformidade import Conformidade
-from app.schemas.conformidade import ConformidadeSchema, NovoConformidadeSchema, ListaConformidadesSchema
+from app.schemas.conformidade import StatusQueryParams, ConformidadeSchema, NovoConformidadeSchema, ListaConformidadesSchema
 from app.schemas.error import RespostaErroSchema
 from app import db
 
