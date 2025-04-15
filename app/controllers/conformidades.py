@@ -1,5 +1,5 @@
 from flask_openapi3 import APIBlueprint, Tag
-from flask import jsonify
+from flask import jsonify, request
 from flask_cors import cross_origin
 from app.models.conformidade import Conformidade
 from app.schemas.conformidade import ConformidadeSchema, NovoConformidadeSchema, ListaConformidadesSchema
@@ -19,6 +19,12 @@ conformidade_bp = APIBlueprint(
 @conformidade_bp.route('/', methods=['OPTIONS'])
 @cross_origin(origins="http://localhost:8000", supports_credentials=True)
 def handle_options():
+    return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
+
+
+@conformidade_bp.route('/status/', methods=['OPTIONS'])
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
+def handle_options_status():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
 # Endpoint para listar todas as conformidades
@@ -46,7 +52,6 @@ def criar_conformidade(body: NovoConformidadeSchema):
             ativo_id=body.ativo_id,
             controle_id=body.controle_id,
             status=body.status,
-            observacoes=body.observacoes
         )
         db.session.add(nova_conformidade)
         db.session.commit()
@@ -56,18 +61,19 @@ def criar_conformidade(body: NovoConformidadeSchema):
 
 
 
+
 @conformidade_bp.get(
     '/status/',
     summary="Lista conformidades filtradas por status",
     responses={200: ListaConformidadesSchema}
 )
 @cross_origin(origins="http://localhost:8000", supports_credentials=True)
-def listar_conformidades_por_status():
-    from flask import request
+def listar_conformidades_por_status(query: StatusQueryParams):
+ 
+    if status and status.lower() != "todos":
+        conformidades = Conformidade.query.filter_by(status=status).all()
+    else:
+        conformidades = Conformidade.query.all()
 
-    status = request.args.get('status')
-
-    conformidades = Conformidade.query.filter_by(status=status).all()
     data = [ConformidadeSchema.from_orm(c).dict() for c in conformidades]
-
     return jsonify(data), 200

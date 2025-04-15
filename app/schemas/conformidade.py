@@ -6,7 +6,6 @@ class NovoConformidadeSchema(BaseModel):
     ativo_id: int
     controle_id: int
     status: Optional[Literal["Pendente", "Andamento", "Implementada"]] = "Pendente"
-    observacoes: Optional[str] = None
 
 class ConformidadeSchema(NovoConformidadeSchema):
     id: int
@@ -17,3 +16,6 @@ class ConformidadeSchema(NovoConformidadeSchema):
 
 class ListaConformidadesSchema(RootModel[list[ConformidadeSchema]]):
     pass
+
+class StatusQueryParams(BaseModel):
+    status: Optional[Literal["Pendente", "Andamento", "Implementada", "Todos"]] = None
