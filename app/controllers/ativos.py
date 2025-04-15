@@ -2,7 +2,7 @@ from flask_openapi3 import APIBlueprint, Tag
 from flask import request, jsonify
 from flask_cors import cross_origin
 from app.models.ativos import Ativo
-from app.schemas.ativo import AtivoSchema, NovoAtivoSchema, ListaAtivosSchema, AtivoPathParams
+from app.schemas.ativo import AtivoSchema, NovoAtivoSchema, ListaAtivosSchema, AtivoPathParams, IpQueryParams
 from app.schemas.error import RespostaErroSchema
 from app import db
 import requests
@@ -23,7 +23,17 @@ ativos_bp = APIBlueprint(
 def handle_options():
     return "", 204  # Retorna uma resposta 204 sem conteúdo, permitindo o preflight request
 
-c
+# Endpoint para listar todos os ativos
+@ativos_bp.get(
+    '/',
+    summary="Lista todos os ativos",
+    responses={200: ListaAtivosSchema}
+)
+@cross_origin(origins="http://localhost:8000", supports_credentials=True)
+def listar_ativos():
+    ativos = Ativo.query.all()
+    data = [AtivoSchema.model_validate(a, from_attributes=True) for a in ativos]
+    return jsonify([d.dict() for d in data]), 200
 
 @ativos_bp.get(
     '/<int:id>',  # Defina a URL com o parâmetro id capturado da URL
@@ -150,9 +160,9 @@ def consultar_ipinfo_ativo(path: AtivoPathParams):
 
 @ativos_bp.get('/ipinfo/manual')
 @cross_origin(origins="http://localhost:8000", supports_credentials=True)
-def consultar_ipinfo_manual():
+def consultar_ipinfo_manual(query: IpQueryParams):
     try:
-        ip = request.args.get('ip')
+        ip = query.ip
         if not ip:
             return jsonify({"mensagem": "IP não informado"}), 400
 
@@ -170,14 +180,14 @@ def consultar_ipinfo_manual():
         }), 200
 
     except Exception as e:
-        print("💥 Erro interno:", str(e))
+        print("Erro interno:", str(e))
         return jsonify({"mensagem": "Erro na consulta do IP", "erro": str(e)}), 500
     
 
     
 
 @ativos_bp.delete(
-    '/<int:id>/',
+    '/<int:id>',
     summary="Remove um ativo pelo ID",
     responses={204: None, 404: RespostaErroSchema, 400: RespostaErroSchema}
 )
@@ -203,5 +213,3 @@ def deletar_ativo(path: AtivoPathParams):
 
     except Exception as e:
         return jsonify({"mensagem": "Erro ao deletar ativo", "erro": str(e)}), 400
-
-

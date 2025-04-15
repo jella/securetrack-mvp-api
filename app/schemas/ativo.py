@@ -32,3 +32,6 @@ class AtivoPathParams(BaseModel):
 # ✅ Wrapper para lista de ativos
 class ListaAtivosSchema(RootModel[list[AtivoSchema]]):
     pass
+
+class IpQueryParams(BaseModel):
+    ip: str = Field(..., description="Endereço IP do ativo (ex: 8.8.8.8)")
